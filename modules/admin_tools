@@ -1,0 +1,60 @@
+from telethon import events
+from config import CMD_PREFIX, owner_id
+
+def register(client):
+    @client.on(events.NewMessage(pattern=fr'^{CMD_PREFIX}kick(?:\s+(.+))?$', outgoing=True))
+    async def kick(evt):
+        if evt.sender_id != owner_id:
+            return await evt.reply('Forbidden')
+        # expects reply or user id
+        if evt.is_reply:
+            msg = await evt.get_reply_message()
+            target = msg.sender_id
+        else:
+            target = evt.pattern_match.group(1)
+            if not target:
+                return await evt.reply('Reply to user or provide user id')
+        try:
+            await client.kick_participant(evt.chat_id, int(target))
+            await evt.reply('User kicked.')
+        except Exception as e:
+            await evt.reply(f'Error: {e}')
+
+    @client.on(events.NewMessage(pattern=fr'^{CMD_PREFIX}ban(?:\s+(.+))?$', outgoing=True))
+    async def ban(evt):
+        # alias for kick
+        await kick(evt)
+
+    @client.on(events.NewMessage(pattern=fr'^{CMD_PREFIX}promote(?:\s+(.+))?$', outgoing=True))
+    async def promote(evt):
+        if evt.sender_id != owner_id:
+            return await evt.reply('Forbidden')
+        if evt.is_reply:
+            msg = await evt.get_reply_message()
+            user = msg.sender_id
+        else:
+            user = evt.pattern_match.group(1)
+            if not user:
+                return await evt.reply('Reply to user or provide user id')
+        try:
+            await client.edit_admin(evt.chat_id, int(user), is_admin=True, change_info=False, add_admins=False)
+            await evt.reply('User promoted (attempt).')
+        except Exception as e:
+            await evt.reply(f'Error: {e}')
+
+    @client.on(events.NewMessage(pattern=fr'^{CMD_PREFIX}demote(?:\s+(.+))?$', outgoing=True))
+    async def demote(evt):
+        if evt.sender_id != owner_id:
+            return await evt.reply('Forbidden')
+        if evt.is_reply:
+            msg = await evt.get_reply_message()
+            user = msg.sender_id
+        else:
+            user = evt.pattern_match.group(1)
+            if not user:
+                return await evt.reply('Reply to user or provide user id')
+        try:
+            await client.edit_admin(evt.chat_id, int(user), is_admin=False)
+            await evt.reply('User demoted (attempt).')
+        except Exception as e:
+            await evt.reply(f'Error: {e}')
