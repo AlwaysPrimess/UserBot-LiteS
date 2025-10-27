@@ -1,8 +1,8 @@
 # config.py — konfigurasi dasar
 
 # Telethon API credentials (isi dengan data kamu)
-api_id = 12345678
-api_hash = "your_api_hash_here"
+api_id = 29633770
+api_hash = "ed50b949f46f027819217aee64fc3404"
 session_name = "userbot_session"
 
 # Prefix command (bisa diganti dengan '.' atau '!')
